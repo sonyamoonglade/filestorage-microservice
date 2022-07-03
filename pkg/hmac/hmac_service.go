@@ -8,11 +8,9 @@ import (
 
 func GenerateHexSignature(v []string) string {
 	h := sha256.New()
-	var str []byte
 	for _, s := range v {
-		str = append(str, []byte(s)...)
+		h.Write([]byte(s))
 	}
-	h.Write(str)
 	signature := h.Sum(nil)
 	return hex.EncodeToString(signature)
 }
