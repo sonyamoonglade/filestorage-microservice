@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sonyamoonglade/storage-service/internal/handler/v1/headers"
 	"github.com/sonyamoonglade/storage-service/pkg/hmac"
-	"github.com/sonyamoonglade/storage-service/pkg/util"
 	"go.uber.org/zap"
 	"os"
 )
@@ -24,7 +23,7 @@ func HmacVerificationMiddleware(logger *zap.Logger) gin.HandlerFunc {
 
 		logger.Info(fmt.Sprintf("got headers - %v", putHeaders))
 
-		if ok := util.ValidateHeaders(putHeaders); ok != true {
+		if ok := headers.Validate(putHeaders); ok != true {
 			c.AbortWithStatusJSON(400, gin.H{
 				"message": "invalid request headers",
 			})
@@ -36,9 +35,9 @@ func HmacVerificationMiddleware(logger *zap.Logger) gin.HandlerFunc {
 		logger.Info(fmt.Sprintf("got hmac from header - %s", xhmac))
 
 		xheaderSum := []string{putHeaders.XFileExt, putHeaders.XFileName, putHeaders.XDestination}
-		xsignature := hmacservice.GenerateHexSignature(xheaderSum)
+		xsignature := hmac.GenerateHexSignature(xheaderSum)
 
-		compResult := hmacservice.ValidateHMAC(xhmac, xsignature, secret)
+		compResult := hmac.ValidateHMAC(xhmac, xsignature, secret)
 		logger.Info(fmt.Sprintf("got comp result - %t", compResult))
 		if !compResult {
 			c.AbortWithStatusJSON(403, gin.H{

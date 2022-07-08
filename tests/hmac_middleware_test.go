@@ -23,7 +23,7 @@ func TestMissingHeader(t *testing.T) {
 	req.Header.Add(headers.XFileExt, "png")
 
 	// explicitly not adding signature. Expect 400
-	//req.Header.Add(headers.XHmacSignature,"png")
+	//req.Header.Add(headers.XHmacSignature, "png")
 
 	w := httptest.NewRecorder()
 
@@ -47,8 +47,8 @@ func TestInvalidHMACSignature(t *testing.T) {
 	req.Header.Add(headers.XFileName, "5")
 	req.Header.Add(headers.XFileExt, "png")
 
-	// explicitly adding invalid signature. Expect 400
-	req.Header.Add(headers.XHmacSignature, "png")
+	// explicitly adding invalid signature. Expect 403
+	req.Header.Add(headers.XHmacSignature, "asdfkljadsfhajsfhaskfhadskjfhsdakfhasfdkjashf")
 
 	w := httptest.NewRecorder()
 

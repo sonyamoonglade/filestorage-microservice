@@ -2,11 +2,11 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/sonyamoonglade/storage-service/internal/app_errors"
 	"github.com/sonyamoonglade/storage-service/internal/handler/v1/dto"
 	"github.com/sonyamoonglade/storage-service/internal/handler/v1/headers"
 	"github.com/sonyamoonglade/storage-service/internal/handler/v1/middleware"
 	"github.com/sonyamoonglade/storage-service/internal/service"
-	"github.com/sonyamoonglade/storage-service/pkg/util"
 	"go.uber.org/zap"
 )
 
@@ -37,37 +37,31 @@ func (h *FileHandler) put(c *gin.Context) {
 
 	xheaders, _ := c.Get(headers.XHeaders)
 
-	var xheaderMap map[string]string
+	var hmap map[string]string
 
-	if err := util.GetHeaderMap(xheaders, &xheaderMap); err != nil {
-		c.AbortWithStatusJSON(500, gin.H{
-			"message": "internal service error",
-		})
+	if err := headers.Decode(xheaders, &hmap); err != nil {
+		app_errors.Internal(c)
 		h.logger.Error(err.Error())
 		return
 	}
 
-	putDto.Destination = xheaderMap[headers.XDestination]
-	putDto.FilenameWithExt = xheaderMap[headers.XFileName] + "." + xheaderMap[headers.XFileExt]
+	putDto.Destination = hmap[headers.XDestination]
+	putDto.FilenameWithExt = hmap[headers.XFileName] + "." + hmap[headers.XFileExt]
 
 	ok, err := h.service.Put(c.Request.Context(), c.Request.Body, putDto)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{
-			"message": "internal service error",
-		})
+		app_errors.Internal(c)
 		h.logger.Error(err.Error())
 		return
 	}
 
 	if !ok {
-		c.AbortWithStatusJSON(500, gin.H{
-			"message": "operation cannot be completed",
-		})
+		app_errors.InternalMsg(c, "operation cannot be completed")
 		h.logger.Error(err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
+	c.JSON(201, gin.H{
 		"ok": ok,
 	})
 	h.logger.Info("operation executed successfully")

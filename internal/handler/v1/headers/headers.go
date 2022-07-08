@@ -1,5 +1,10 @@
 package headers
 
+import (
+	"encoding/json"
+	"github.com/fatih/structs"
+)
+
 const (
 	XFileExt       = "x-file-ext"
 	XFileName      = "x-file-name"
@@ -16,4 +21,17 @@ type PutHeaders struct {
 	XFileName      string `header:"x-file-name"`
 	XHmacSignature string `header:"x-hmac-signature"`
 	XDestination   string `header:"x-destination"`
+}
+
+func Validate(v interface{}) bool {
+	result := structs.HasZero(v)
+	return !result
+}
+func Decode(v interface{}, out *map[string]string) error {
+	b, _ := json.Marshal(v)
+	err := json.Unmarshal(b, out)
+	if err != nil {
+		return err
+	}
+	return nil
 }
