@@ -38,7 +38,7 @@ func main() {
 	fileService := service.NewFileService(client)
 	fileHandler := handler.NewFileHandler(v1, fileService, logger)
 	fileHandler.Routes()
-	
+
 	logger.Info("initialized file composition")
 
 	if err := v1.Run(":5001"); err != nil {
