@@ -22,7 +22,7 @@ func NewFileService(client *s3yandex.YandexS3Client) *fileService {
 
 func (f *fileService) Put(ctx context.Context, body io.ReadCloser, dto dto.PutFileDto) (bool, error) {
 
-	fileBytes, err := io.ReadAll(body)
+	bytes, err := io.ReadAll(body)
 	if err != nil {
 		return false, err
 	}
@@ -31,7 +31,7 @@ func (f *fileService) Put(ctx context.Context, body io.ReadCloser, dto dto.PutFi
 		ContentType: s3yandex.ImagePNG,
 		FileName:    dto.FilenameWithExt,
 		Destination: dto.Destination,
-		FileBytes:   &fileBytes,
+		FileBytes:   &bytes,
 	})
 
 	if err != nil {

@@ -25,7 +25,6 @@ func main() {
 		logger.Error("could not load environment file")
 		os.Exit(1)
 	}
-
 	s3CredProvider := s3yandex.NewEnvCredentialsProvider()
 	logger.Info("initialized credential provider")
 
@@ -38,7 +37,8 @@ func main() {
 
 	fileService := service.NewFileService(client)
 	fileHandler := handler.NewFileHandler(v1, fileService, logger)
-	fileHandler.InitRoutes()
+	fileHandler.Routes()
+	
 	logger.Info("initialized file composition")
 
 	if err := v1.Run(":5001"); err != nil {

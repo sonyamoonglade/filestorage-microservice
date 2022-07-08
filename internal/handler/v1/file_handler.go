@@ -5,7 +5,6 @@ import (
 	"github.com/sonyamoonglade/storage-service/internal/app_errors"
 	"github.com/sonyamoonglade/storage-service/internal/handler/v1/dto"
 	"github.com/sonyamoonglade/storage-service/internal/handler/v1/headers"
-	"github.com/sonyamoonglade/storage-service/internal/handler/v1/middleware"
 	"github.com/sonyamoonglade/storage-service/internal/service"
 	"go.uber.org/zap"
 )
@@ -18,17 +17,6 @@ type FileHandler struct {
 
 func NewFileHandler(v1 *gin.Engine, service service.File, logger *zap.Logger) *FileHandler {
 	return &FileHandler{v1: v1, service: service, logger: logger}
-}
-
-func (h *FileHandler) InitRoutes() {
-
-	srv := h.v1.Group("/service", middleware.HmacVerificationMiddleware(h.logger))
-	{
-		srv.POST("/put", h.put)
-		srv.GET("/all", h.getAll)
-		srv.DELETE("/delete", h.delete)
-	}
-
 }
 
 func (h *FileHandler) put(c *gin.Context) {
@@ -50,8 +38,8 @@ func (h *FileHandler) put(c *gin.Context) {
 
 	ok, err := h.service.Put(c.Request.Context(), c.Request.Body, putDto)
 	if err != nil {
-		app_errors.Internal(c)
 		h.logger.Error(err.Error())
+		app_errors.Internal(c)
 		return
 	}
 
